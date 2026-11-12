@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#08080c">
+  <meta name="description" content="天机判官：一个只给确定答案的娱乐性 AI 命理判官。决策模型落笔，不模棱两可，回答你任何问题。">
+  <title>天机判官 · 只给一个答案的 AI 命理判官</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./css/style.css?v=16">
+</head>
+<body>
+  <div class="site-bg" aria-hidden="true">
+    <canvas id="starfield"></canvas>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="grain"></div>
+  </div>
+
+  <header class="site-header" id="siteHeader">
+    <a class="brand" href="#/" aria-label="天机判官首页">
+      <span class="brand-seal">判</span>
+      <span class="brand-text">
+        <strong>天机判官</strong>
+        <em>GUNCAT ORACLE</em>
+      </span>
+    </a>
+
+    <nav class="main-nav" id="mainNav" aria-label="主导航">
+      <a href="#/ask" data-nav="ask">问事</a>
+      <a href="#/daily" data-nav="daily">每日</a>
+      <a href="#/choose" data-nav="choose">抉择</a>
+      <a href="#/match" data-nav="match">合盘</a>
+      <a href="#/lot" data-nav="lot">灵签</a>
+      <a href="#/chart" data-nav="chart">命格</a>
+      <a href="#/chat" data-nav="chat">问答</a>
+    </nav>
+
+    <div class="header-tools">
+      <a class="identity-chip" id="identityChip" href="#/profile" title="我的命帖：全站共用的一份生辰">
+        <span class="identity-seal">帖</span>
+        <span class="identity-name" id="identityName">立命帖</span>
+      </a>
+      <span class="online-status" id="onlineStatus"><i></i><span>连线中</span></span>
+      <button class="icon-btn" id="soundToggle" type="button" aria-label="开启音效" title="开启音效">
+        <span class="sound-on">♪</span>
+        <span class="sound-off">×</span>
+      </button>
+      <a class="ledger-btn" id="ledgerBtn" href="#/ledger">
+        香火簿 <b id="ledgerCount">0</b>
+      </a>
+      <button class="menu-btn" id="menuBtn" type="button" aria-label="打开导航" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- 首页 -->
+    <section class="page page-home" data-page="home">
+      <div class="hero" id="top">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="eyebrow-dot"></span> GUNCAT ORACLE · 娱乐性 AI 命理判官</p>
+          <h1>别再问「有没有可能」<br><span class="accent">判官只给你一个答案</span></h1>
+          <p class="hero-lead">
+            决策模型落笔，本地玄机引擎补全判词。不绕弯、不两头堵、不把选择权再丢回给你。
+            同一个问题，同一个答案——至少在你问的这一天。
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#/ask"><span>把问题交给判官</span><i>→</i></a>
+            <a class="btn btn-ghost" href="#/daily"><span>先看今日运势</span></a>
+          </div>
+          <div class="hero-stats">
+            <div><b id="statReadings">0</b><span>已落判词</span></div>
+            <div><b>64</b><span>卦象</span></div>
+            <div><b>24</b><span>节气灵签</span></div>
+            <div><b>1</b><span>个明确答案</span></div>
+          </div>
+          <div class="hero-note">
+            <span class="mini-seal">娱</span>
+            <p>本判官只负责把话说死，不负责替天行道。所有内容仅供娱乐。</p>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-hidden="true">
+          <div class="compass-wrap">
+            <svg class="compass" viewBox="0 0 520 520" role="img" aria-label="旋转的天机罗盘">
+              <defs>
+                <radialGradient id="compassGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#d9b36c" stop-opacity=".22"/>
+                  <stop offset="55%" stop-color="#d9b36c" stop-opacity=".05"/>
+                  <stop offset="100%" stop-color="#d9b36c" stop-opacity="0"/>
+                </radialGradient>
+                <linearGradient id="compassStroke" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#f4d79a"/>
+                  <stop offset="50%" stop-color="#a67c3d"/>
+                  <stop offset="100%" stop-color="#f4d79a"/>
+                </linearGradient>
+              </defs>
+              <circle cx="260" cy="260" r="248" fill="url(#compassGlow)"/>
+              <circle cx="260" cy="260" r="244" fill="none" stroke="url(#compassStroke)" stroke-opacity=".5" stroke-width="1"/>
+              <circle cx="260" cy="260" r="214" fill="none" stroke="#d9b36c" stroke-opacity=".24" stroke-width="1" stroke-dasharray="2 8"/>
+              <circle cx="260" cy="260" r="168" fill="none" stroke="#d9b36c" stroke-opacity=".22" stroke-width="1"/>
+
+              <g class="compass-rotor">
+                <circle cx="260" cy="260" r="230" fill="none" stroke="#d9b36c" stroke-opacity=".2" stroke-width="1" stroke-dasharray="1 13"/>
+                <g class="trigram trigram-1"><text x="260" y="46" text-anchor="middle">☰</text><text class="trigram-name" x="260" y="74" text-anchor="middle">乾</text></g>
+                <g transform="rotate(45 260 260)" class="trigram"><text x="260" y="46" text-anchor="middle">☱</text><text class="trigram-name" x="260" y="74" text-anchor="middle">兑</text></g>
+                <g transform="rotate(90 260 260)" class="trigram"><text x="260" y="46" text-anchor="middle">☲</text><text class="trigram-name" x="260" y="74" text-anchor="middle">离</text></g>
+                <g transform="rotate(135 260 260)" class="trigram"><text x="260" y="46" text-anchor="middle">☳</text><text class="trigram-name" x="260" y="74" text-anchor="middle">震</text></g>
+                <g transform="rotate(180 260 260)" class="trigram"><text x="260" y="46" text-anchor="middle">☴</text><text class="trigram-name" x="260" y="74" text-anchor="middle">巽</text></g>
+                <g transform="rotate(225 260 260)" class="trigram"><text x="260" y="46" text-anchor="middle">☵</text><text class="trigram-name" x="260" y="74" text-anchor="middle">坎</text></g>
+                <g transform="rotate(270 260 260)" class="trigram"><text x="260" y="46" text-anchor="middle">☶</text><text class="trigram-name" x="260" y="74" text-anchor="middle">艮</text></g>
+                <g transform="rotate(315 260 260)" class="trigram"><text x="260" y="46" text-anchor="middle">☷</text><text class="trigram-name" x="260" y="74" text-anchor="middle">坤</text></g>
+              </g>
+
+              <g class="compass-rotor compass-rotor-reverse">
+                <circle cx="260" cy="260" r="188" fill="none" stroke="#d9b36c" stroke-opacity=".18" stroke-width="1"/>
+                <g stroke="#d9b36c" stroke-opacity=".45" stroke-width="1">
+                  <line x1="260" y1="72" x2="260" y2="92"/>
+                  <line x1="260" y1="428" x2="260" y2="448"/>
+                  <line x1="72" y1="260" x2="92" y2="260"/>
+                  <line x1="428" y1="260" x2="448" y2="260"/>
+                  <line x1="127" y1="127" x2="141" y2="141"/>
+                  <line x1="379" y1="379" x2="393" y2="393"/>
+                  <line x1="393" y1="127" x2="379" y2="141"/>
+                  <line x1="141" y1="379" x2="127" y2="393"/>
+                </g>
+              </g>
+
+              <circle cx="260" cy="260" r="126" fill="#0b0b10" fill-opacity=".86" stroke="#d9b36c" stroke-opacity=".45" stroke-width="1"/>
+              <circle cx="260" cy="260" r="112" fill="none" stroke="#d9b36c" stroke-opacity=".18" stroke-width="1" stroke-dasharray="4 6"/>
+              <circle class="orbit-dot" cx="260" cy="134" r="3.5" fill="#e8a45c"/>
+              <circle class="orbit-dot orbit-dot-2" cx="340" cy="330" r="2.5" fill="#d9b36c"/>
+
+              <text class="compass-center" x="260" y="248" text-anchor="middle">判</text>
+              <text class="compass-sub" x="260" y="286" text-anchor="middle">天机已定</text>
+              <text class="compass-sub compass-sub-small" x="260" y="310" text-anchor="middle">DO NOT HEDGE</text>
+
+              <g stroke="#d9b36c" stroke-opacity=".35" stroke-width="1">
+                <path d="M260 20v14M260 486v14M20 260h14M486 260h14"/>
+              </g>
+            </svg>
+
+            <span class="float-chip float-chip-1">不模棱两可</span>
+            <span class="float-chip float-chip-2">决策模型落笔</span>
+            <span class="float-chip float-chip-3">同问同答</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section halls-section">
+        <div class="section-head">
+          <p class="section-kicker">七殿一帖</p>
+          <h2>挑一座殿进去</h2>
+          <p class="section-desc">每座殿只管一件事。你的生辰立一次命帖，所有殿共用，不用反复填。</p>
+        </div>
+        <div class="halls-grid">
+          <a class="hall-card card ornate" href="#/ask">
+            <span class="hall-seal">问</span>
+            <h3>问事殿</h3>
+            <p>判是非、二选一、问吉凶。一个问题，一次落笔。</p>
+            <span class="hall-enter">进入 →</span>
+          </a>
+          <a class="hall-card card ornate" href="#/daily">
+            <span class="hall-seal">日</span>
+            <h3>每日阁</h3>
+            <p>每天零点换一页。出门前花十秒看一眼。</p>
+            <span class="hall-enter">进入 →</span>
+          </a>
+          <a class="hall-card card ornate" href="#/choose">
+            <span class="hall-seal">择</span>
+            <h3>抉择擂台</h3>
+            <p>最多六个选项同台。判官不投弃权票。</p>
+            <span class="hall-enter">进入 →</span>
+          </a>
+          <a class="hall-card card ornate" href="#/match">
+            <span class="hall-seal">缘</span>
+            <h3>合盘院</h3>
+            <p>两个人的缘分，哪里配、哪里拧、要不要继续。</p>
+            <span class="hall-enter">进入 →</span>
+          </a>
+          <a class="hall-card card ornate" href="#/lot">
+            <span class="hall-seal">签</span>
+            <h3>灵签阁</h3>
+            <p>按你的问题从二十四节气里抽一支。抽完不重摇。</p>
+            <span class="hall-enter">进入 →</span>
+          </a>
+          <a class="hall-card card ornate" href="#/chart">
+            <span class="hall-seal">命</span>
+            <h3>命格堂</h3>
+            <p>简化四柱排盘、五行分布、命格原型。</p>
+            <span class="hall-enter">进入 →</span>
+          </a>
+          <a class="hall-card card ornate" href="#/chat">
+            <span class="hall-seal">答</span>
+            <h3>问答房</h3>
+            <p>不用选模式，直接问。判官自己识别你在问什么。</p>
+            <span class="hall-enter">进入 →</span>
+          </a>
+          <a class="hall-card hall-card-profile card ornate" href="#/profile">
+            <span class="hall-seal">帖</span>
+            <h3>我的命帖</h3>
+            <p>立一次生辰，全站同步。还能记下 TA 的信息。</p>
+            <span class="hall-enter">进入 →</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="manifesto">
+        <div class="manifesto-inner">
+          <span class="manifesto-seal">断</span>
+          <div>
+            <p class="section-kicker">判官的原则</p>
+            <h2>不解释命运，只给你下一步。</h2>
+            <p>你可以不同意判官，但你不能说判官没给答案。命理是壳，决定才是核。所有判词都是娱乐，真正的生活请交给清醒的你自己。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 问事殿 -->
+    <section class="page" data-page="ask" hidden>
+      <div class="section ask-section">
+        <div class="section-head">
+          <p class="section-kicker">问事殿</p>
+          <h2>把问题交给判官</h2>
+          <p class="section-desc">一个问题，一次落笔。可以问是非、让人替你选、也可以问一段时间的吉凶。</p>
+        </div>
+
+        <div class="identity-strip" id="askIdentity"></div>
+
+        <div class="ask-card ornate">
+          <div class="ask-card-top">
+            <div class="ask-title">
+              <span class="seal-sm">问</span>
+              <div>
+                <h3>今天，你想知道什么？</h3>
+                <p>尽量问得具体一点，判官才好把话说死。</p>
+              </div>
+            </div>
+            <span class="model-chip" id="modelChip"><i></i> 决策模型 · 连接中</span>
+          </div>
+
+          <div class="mode-tabs" role="tablist" aria-label="问事模式">
+            <button type="button" data-mode="verdict" class="active" role="tab" aria-selected="true"><span>判</span> 判是非</button>
+            <button type="button" data-mode="choice" role="tab" aria-selected="false"><span>择</span> 二选一</button>
+            <button type="button" data-mode="score" role="tab" aria-selected="false"><span>运</span> 问吉凶</button>
+          </div>
+
+          <form id="askForm" autocomplete="off">
+            <label class="sr-only" for="questionInput">写下你的问题</label>
+            <div class="textarea-wrap">
+              <textarea id="questionInput" maxlength="300" rows="3" placeholder="例如：我该不该辞掉现在的工作？"></textarea>
+              <span class="char-count"><b id="charCount">0</b>/300</span>
+            </div>
+
+            <div class="choice-fields" id="choiceFields" hidden>
+              <div class="choice-row"><span class="option-mark">A</span><input id="choiceA" maxlength="40" placeholder="第一个选项"></div>
+              <div class="choice-row"><span class="option-mark">B</span><input id="choiceB" maxlength="40" placeholder="第二个选项"></div>
+              <div id="extraChoices"></div>
+              <button type="button" id="addChoiceBtn" class="text-btn">+ 再加一个选项</button>
+              <p class="field-hint">最多 6 个选项。判官会直接选一个，不投弃权票。</p>
+            </div>
+
+            <div class="example-row" id="exampleChips" aria-label="示例问题"></div>
+
+            <details class="profile-details">
+              <summary>
+                <span class="summary-icon">＋</span>
+                生辰信息（与命帖同步）
+                <span class="optional">可选</span>
+              </summary>
+              <div class="profile-grid">
+                <label>称呼<input id="askName" data-profile="name" maxlength="24" placeholder="怎么称呼你"></label>
+                <label>出生日期<input type="date" id="askBirth" data-profile="birth"></label>
+                <label>出生时间<input type="time" id="askTime" data-profile="time"></label>
+                <label>性别
+                  <select id="askGender" data-profile="gender">
+                    <option value="">不填</option>
+                    <option value="female">女</option>
+                    <option value="male">男</option>
+                    <option value="other">其他</option>
+                  </select>
+                </label>
+              </div>
+              <p class="privacy-note">生辰只用于本次排盘与判词生成；会随问题发送给决策模型服务，不会在浏览器里保存 API 密钥。</p>
+            </details>
+
+            <div class="ask-footer">
+              <p class="ask-note"><span class="pulse-dot"></span> 同一问题同一天只判一次，答案稳定可复现。</p>
+              <button type="submit" class="btn btn-primary" id="askSubmit">
+                <span>请判官落笔</span><i>→</i>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div id="resultPanel" class="result-panel" aria-live="polite" hidden></div>
+      </div>
+    </section>
+
+    <!-- 每日阁 -->
+    <section class="page" data-page="daily" hidden>
+      <div class="section daily-section">
+        <div class="section-head">
+          <p class="section-kicker">每日阁</p>
+          <h2>今天的运势，先看一页</h2>
+          <p class="section-desc">每天零点换一页。不需要问什么，适合出门前花十秒看一眼。</p>
+        </div>
+
+        <div class="daily-layout">
+          <form class="daily-form card ornate" id="dailyForm" autocomplete="off">
+            <div class="card-label">排今日</div>
+            <h3>给判官一个坐标</h3>
+            <p>名字和生辰可以留空，留空就按今天的日子起卦。</p>
+            <div class="form-stack">
+              <label>称呼<input id="dailyName" data-profile="name" maxlength="24" placeholder="怎么称呼你"></label>
+              <label>出生日期<input type="date" id="dailyBirth" data-profile="birth"></label>
+              <label>出生时间<input type="time" id="dailyTime" data-profile="time"></label>
+            </div>
+            <button type="submit" class="btn btn-secondary">看今日运势</button>
+            <p class="micro-note">每日运势由本地玄机引擎计算，不消耗模型额度，随开随看。</p>
+          </form>
+
+          <div class="daily-result" id="dailyResult" aria-live="polite">
+            <div class="daily-placeholder">
+              <span class="placeholder-seal">日</span>
+              <p>填好左边的信息，或者直接看今天的通用运势。</p>
+              <button type="button" class="btn btn-ghost" id="dailyNowBtn">就看今天</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 抉择擂台 -->
+    <section class="page" data-page="choose" hidden>
+      <div class="section choose-section">
+        <div class="section-head">
+          <p class="section-kicker">抉择擂台</p>
+          <h2>把选择题扔过来</h2>
+          <p class="section-desc">两个选项、三个选项都行。判官不投弃权票，也不说「看你自己」。</p>
+        </div>
+
+        <div class="choice-arena card ornate">
+          <div class="arena-top">
+            <div>
+              <span class="card-label">擂台</span>
+              <h3>今天，选哪条路？</h3>
+            </div>
+            <span class="arena-stamp">决</span>
+          </div>
+          <form id="choiceForm" autocomplete="off">
+            <label class="sr-only" for="choiceQuestion">你的选择题</label>
+            <input class="question-line" id="choiceQuestion" maxlength="200" placeholder="例如：留在大城市继续拼，还是回老家稳定下来？">
+            <div class="arena-options" id="arenaOptions">
+              <label class="arena-option"><span>A</span><input id="arenaA" maxlength="40" placeholder="选项 A"></label>
+              <label class="arena-option"><span>B</span><input id="arenaB" maxlength="40" placeholder="选项 B"></label>
+            </div>
+            <div class="arena-actions">
+              <button type="button" class="text-btn" id="arenaAdd">+ 再加一个选项</button>
+              <button type="submit" class="btn btn-primary" id="choiceSubmit"><span>让判官选</span><i>→</i></button>
+            </div>
+          </form>
+          <div id="choiceResult" class="choice-result" aria-live="polite" hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 合盘院 -->
+    <section class="page" data-page="match" hidden>
+      <div class="section match-section">
+        <div class="section-head">
+          <p class="section-kicker">合盘院</p>
+          <h2>两个人的缘分，算个明白</h2>
+          <p class="section-desc">不是「你俩挺配的」这种废话。判官会告诉你：哪里配、哪里拧、要不要继续。</p>
+        </div>
+
+        <div class="match-shell">
+          <form class="match-form card ornate" id="matchForm" autocomplete="off">
+            <div class="match-persons">
+              <div class="person-card">
+                <span class="person-mark">你</span>
+                <label>称呼<input id="matchAName" data-profile="name" maxlength="24" placeholder="你的名字"></label>
+                <label>出生日期<input type="date" id="matchABirth" data-profile="birth"></label>
+                <label>出生时间<input type="time" id="matchATime" data-profile="time"></label>
+              </div>
+              <div class="match-heart" aria-hidden="true">×</div>
+              <div class="person-card">
+                <span class="person-mark">TA</span>
+                <label>称呼<input id="matchBName" data-partner="name" maxlength="24" placeholder="对方的名字"></label>
+                <label>出生日期<input type="date" id="matchBBirth" data-partner="birth"></label>
+                <label>出生时间<input type="time" id="matchBTime" data-partner="time"></label>
+              </div>
+            </div>
+            <div class="match-actions">
+              <p>你的一侧与命帖同步；TA 的信息会记在命帖里，下次自动带出。</p>
+              <button type="submit" class="btn btn-primary" id="matchSubmit"><span>开始合盘</span><i>→</i></button>
+            </div>
+          </form>
+          <div id="matchResult" class="match-result" aria-live="polite" hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 灵签阁 -->
+    <section class="page" data-page="lot" hidden>
+      <div class="section lot-section">
+        <div class="section-head">
+          <p class="section-kicker">灵签阁</p>
+          <h2>二十四节气灵签</h2>
+          <p class="section-desc">不是庙里求来的，是判官按你的问题从二十四节气里抽的一支。抽完不重摇。</p>
+        </div>
+
+        <div class="lot-shell">
+          <div class="lot-stage card ornate">
+            <div class="lot-bundle" id="lotBundle" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div class="lot-stage-copy">
+              <span class="card-label">签筒</span>
+              <h3>心里默念你的问题</h3>
+              <p>然后按下摇签。签落之后，先看签文，再看判官怎么把它落到你的事上。</p>
+            </div>
+            <form id="lotForm" autocomplete="off">
+              <label class="sr-only" for="lotQuestion">你想问的事</label>
+              <input id="lotQuestion" maxlength="200" placeholder="例如：这份工作还要不要继续？">
+              <div class="lot-fields">
+                <input id="lotName" data-profile="name" maxlength="24" placeholder="称呼（可选）">
+                <input type="date" id="lotBirth" data-profile="birth" aria-label="出生日期（可选）">
+              </div>
+              <button type="submit" class="btn btn-primary" id="lotSubmit"><span>摇一支签</span><i>⟳</i></button>
+            </form>
+          </div>
+          <div id="lotResult" class="lot-result" aria-live="polite" hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 命格堂 -->
+    <section class="page" data-page="chart" hidden>
+      <div class="section chart-section">
+        <div class="section-head">
+          <p class="section-kicker">命格堂</p>
+          <h2>你的命盘，长什么样</h2>
+          <p class="section-desc">简化四柱排盘 + 五行分布 + 命格原型。不是给你贴标签，是给你一面镜子。</p>
+        </div>
+
+        <div class="chart-layout">
+          <form class="chart-form card ornate" id="chartForm" autocomplete="off">
+            <span class="card-label">排盘</span>
+            <h3>输入你的出生信息</h3>
+            <p>时间不确定可以不填，年、月、日三柱也能看个大概。</p>
+            <div class="form-stack">
+              <label>称呼<input id="chartName" data-profile="name" maxlength="24" placeholder="怎么称呼你"></label>
+              <label>出生日期<input type="date" id="chartBirth" data-profile="birth" required></label>
+              <label>出生时间<input type="time" id="chartTime" data-profile="time"></label>
+              <label>性别
+                <select id="chartGender" data-profile="gender">
+                  <option value="">不填</option>
+                  <option value="female">女</option>
+                  <option value="male">男</option>
+                  <option value="other">其他</option>
+                </select>
+              </label>
+            </div>
+            <button type="submit" class="btn btn-secondary">开始排盘</button>
+            <p class="micro-note">采用简化干支历规则，未做真太阳时校正。仅作传统文化趣味参考。</p>
+          </form>
+          <div id="chartResult" class="chart-result" aria-live="polite">
+            <div class="chart-placeholder">
+              <span class="placeholder-seal">命</span>
+              <p>命盘不是判决书，是一张你出生时拿到的牌。怎么打，还是你说了算。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 问答房 -->
+    <section class="page" data-page="chat" hidden>
+      <div class="section chat-section">
+        <div class="section-head">
+          <p class="section-kicker">问答房</p>
+          <h2>任何问题，判官直答</h2>
+          <p class="section-desc">不用选模式，直接问。判官会自己判断你在问是非、选项还是一段运势。</p>
+        </div>
+
+        <div class="chat-shell card ornate">
+          <div class="chat-head">
+            <div class="chat-identity">
+              <span class="chat-avatar">判</span>
+              <div>
+                <h3>判官在线</h3>
+                <p id="chatStatus">正在连接天机……</p>
+              </div>
+            </div>
+            <span class="chat-model" id="chatModel">决策模型</span>
+          </div>
+          <div class="chat-messages" id="chatMessages" aria-live="polite">
+            <div class="chat-bubble assistant">
+              <p>问吧。工作、感情、钱、学业、要不要走、要不要留，都可以。判官只负责把话说死，不负责替你后悔。</p>
+              <span class="bubble-time">现在</span>
+            </div>
+          </div>
+          <div class="chat-quick" id="chatQuick">
+            <button type="button">我该不该辞职？</button>
+            <button type="button">他对我到底是什么感觉？</button>
+            <button type="button">我今年能存下钱吗？</button>
+            <button type="button">这次考试能过吗？</button>
+          </div>
+          <form class="chat-form" id="chatForm" autocomplete="off">
+            <label class="sr-only" for="chatInput">输入你的问题</label>
+            <input id="chatInput" maxlength="300" placeholder="直接问，越具体越好……">
+            <button type="submit" class="btn btn-primary" id="chatSubmit"><span>发送</span><i>→</i></button>
+          </form>
+          <p class="chat-note" id="chatIdentityNote">判官会记住这一轮对话的前几句，仅用于让回答更连贯。刷新页面即清空。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 我的命帖 -->
+    <section class="page" data-page="profile" hidden>
+      <div class="section profile-section">
+        <div class="section-head">
+          <p class="section-kicker">我的命帖</p>
+          <h2>立一次帖，全站共用</h2>
+          <p class="section-desc">这里填一次，问事、每日、合盘、灵签、命格、问答都会自动带上。命帖只存在你的浏览器里。</p>
+        </div>
+
+        <div class="profile-layout">
+          <form class="profile-form card ornate" id="profileForm" autocomplete="off">
+            <span class="card-label">立帖</span>
+            <h3>你的生辰信息</h3>
+            <p>改动会即时同步到所有殿的表单，不需要点保存也能生效；保存只是让你安心。</p>
+            <div class="form-stack">
+              <label>称呼<input id="profileName" data-profile="name" maxlength="24" placeholder="怎么称呼你"></label>
+              <label>出生日期<input type="date" id="profileBirth" data-profile="birth"></label>
+              <label>出生时间<input type="time" id="profileTime" data-profile="time"></label>
+              <label>性别
+                <select id="profileGender" data-profile="gender">
+                  <option value="">不填</option>
+                  <option value="female">女</option>
+                  <option value="male">男</option>
+                  <option value="other">其他</option>
+                </select>
+              </label>
+            </div>
+            <div class="profile-form-actions">
+              <button type="submit" class="btn btn-primary"><span>保存命帖</span><i>→</i></button>
+              <button type="button" class="btn btn-ghost" id="profileClear">清空命帖</button>
+            </div>
+            <p class="privacy-note">命帖保存在本机 localStorage（oracle_profile_v1），不上传。问事时生辰会随问题发送给决策模型服务；API 密钥只在服务端保险箱。</p>
+          </form>
+
+          <div class="profile-side">
+            <div id="profilePreview" class="profile-preview" aria-live="polite">
+              <div class="chart-placeholder">
+                <span class="placeholder-seal">帖</span>
+                <p>填上出生日期，这里会即时排出你的简盘。命帖一立，七殿同用。</p>
+              </div>
+            </div>
+            <div class="partner-card card ornate">
+              <span class="card-label">记下 TA</span>
+              <h3>合盘对象</h3>
+              <p>在合盘院用过的人，信息会记在这里，下次自动带出。</p>
+              <div class="form-stack">
+                <label>称呼<input id="partnerName" data-partner="name" maxlength="24" placeholder="对方的名字"></label>
+                <label>出生日期<input type="date" id="partnerBirth" data-partner="birth"></label>
+                <label>出生时间<input type="time" id="partnerTime" data-partner="time"></label>
+              </div>
+              <div class="profile-form-actions">
+                <a class="btn btn-secondary" href="#/match"><span>去合盘</span><i>→</i></a>
+                <button type="button" class="btn btn-ghost" id="partnerClear">忘记 TA</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 香火簿 -->
+    <section class="page" data-page="ledger" hidden>
+      <div class="section ledger-section">
+        <div class="section-head">
+          <p class="section-kicker">香火簿</p>
+          <h2>你来过的痕迹</h2>
+          <p class="section-desc">判词、合盘、灵签都记在这里。只存在你的浏览器里，不上传，不同步。</p>
+        </div>
+
+        <div class="ledger-layout">
+          <div class="ledger-side">
+            <div class="merit-card">
+              <div><span>功德</span><b id="ledgerMerit">0</b></div>
+              <p>点香、问事、抽签都会留下痕迹。功德没有任何用处，但看着开心。</p>
+            </div>
+            <div class="achievement-block">
+              <h4>判官印记</h4>
+              <div class="achievements" id="achievements"></div>
+            </div>
+            <p class="drawer-note">香火簿只存在你的浏览器 localStorage 里，不上传，不同步。</p>
+          </div>
+
+          <div class="ledger-main card ornate">
+            <div class="history-head">
+              <h4>最近判词</h4>
+              <div class="ledger-filters" id="ledgerFilters" role="tablist" aria-label="记录筛选">
+                <button type="button" data-filter="all" class="active">全部</button>
+                <button type="button" data-filter="reading">判词</button>
+                <button type="button" data-filter="match">合盘</button>
+                <button type="button" data-filter="lot">灵签</button>
+              </div>
+              <button type="button" class="text-btn danger" id="clearHistory">清空</button>
+            </div>
+            <div id="historyList" class="history-list">
+              <p class="empty-hint">还没有判词。去问一卦，这里就有东西了。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <span class="brand-seal small">判</span>
+        <div><strong>天机判官</strong><em>GUNCAT ORACLE</em></div>
+      </div>
+      <div class="footer-links">
+        <a href="#/ask">问事</a>
+        <a href="#/daily">每日</a>
+        <a href="#/lot">灵签</a>
+        <a href="#/chart">命格</a>
+        <a href="#/profile">命帖</a>
+        <a href="#/ledger" id="footerLedger">香火簿</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>娱乐性内容，不构成医疗、法律、投资、心理等专业建议。涉及健康与财务问题，请咨询专业人士。决策模型可能出错，请保留自己的判断。</p>
+      <p>© <span id="yearNow"></span> GUNCAT ORACLE · 密钥保存在服务端保险箱，不进入浏览器。</p>
+    </div>
+  </footer>
+
+  <button class="incense-widget" id="incenseBtn" type="button" title="点一炷香，攒点功德">
+    <span class="incense-smoke" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span class="incense-stick" aria-hidden="true"></span>
+    <span class="incense-label">功德 <b id="meritCount">0</b></span>
+  </button>
+
+  <div class="ritual-overlay" id="ritualOverlay" hidden aria-hidden="true">
+    <div class="ritual-inner">
+      <div class="ritual-ring">
+        <span id="ritualGlyph">判</span>
+      </div>
+      <p class="ritual-line" id="ritualLine">净手</p>
+      <div class="ritual-bar"><i id="ritualBar"></i></div>
+      <p class="ritual-hint">天机正在落笔</p>
+    </div>
+  </div>
+
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+  <div class="image-export-wrap" id="imageExportWrap" hidden>
+    <img id="imageExport" alt="判词分享图">
+    <p>长按或右键保存图片。</p>
+    <button type="button" class="btn btn-ghost" id="imageExportClose">关闭</button>
+  </div>
+
+  <script type="module" src="./js/app.js?v=16"></script>
+</body>
+</html>
