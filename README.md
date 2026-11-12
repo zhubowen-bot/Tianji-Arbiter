@@ -1,6 +1,6 @@
 # 天机判官 · GUNCAT ORACLE
 
-一个只给确定答案的娱乐性 AI 命理判官。  
+一个由decision model（决策判断模型）驱动的，只给确定答案的娱乐性 AI 命理判官。  
 决策模型负责「判」，本地玄机引擎负责把判词说具体，前端负责把它做得像一场可以玩很久的仪式。
 
 > 娱乐性内容，不构成医疗、法律、投资、心理等专业建议。  
@@ -53,15 +53,18 @@ npm run dev
 这是这个项目最重要的部分：
 
 1. **API Key 永远不进浏览器。**
+   
    - 前端只拿到一个短期的 HMAC 会话令牌，用来调用本站自己的 `/api/divine`、`/api/match`、`/api/draw`。
    - 真正的 `Authorization: Bearer ...` 只在 `server.js` 里组装。
 
 2. **API Key 在磁盘上加密。**
+   
    - `vault.json` 是 AES-256-GCM 密文。
    - 解密主密码放在 `.env` 的 `ORACLE_MASTER_KEY`。
    - `.env` 和 `vault.json` 都已加入 `.gitignore`，不要提交、不要发群、不要放进前端构建产物。
 
 3. **服务端还有这些保护：**
+   
    - 短期会话令牌（2 小时，服务重启即失效）
    - 同源检查 / 可选 `ALLOWED_ORIGINS`
    - 每 IP 限流（默认 10 分钟 40 次）
@@ -90,18 +93,18 @@ npm run vault
 
 完整示例见 `.env.example`。
 
-| 变量 | 说明 |
-| --- | --- |
-| `PORT` | 服务端口，默认 `8787` |
-| `DASHSCOPE_ENDPOINT` | 决策模型完整端点，默认 trial 域名 |
-| `DASHSCOPE_MODEL` | 默认 `decision-model-preview` |
-| `ORACLE_MASTER_KEY` | 64 位十六进制，AES-256-GCM 主密码 |
-| `DASHSCOPE_API_KEY` | 可选，不加密直接放环境变量时使用（不推荐） |
-| `RATE_LIMIT_MAX` | 每 IP 限流次数，默认 40 |
-| `RATE_LIMIT_WINDOW_MS` | 限流窗口，默认 600000（10 分钟） |
-| `GLOBAL_MODEL_LIMIT_PER_HOUR` | 全局模型调用小时上限，默认 300 |
-| `TRUST_PROXY` | 在 Nginx/Caddy 后面设为 `1`，才能正确取到真实 IP |
-| `ALLOWED_ORIGINS` | 可选，逗号分隔的允许来源，例如 `https://your-domain.com` |
+| 变量                            | 说明                                        |
+| ----------------------------- | ----------------------------------------- |
+| `PORT`                        | 服务端口，默认 `8787`                            |
+| `DASHSCOPE_ENDPOINT`          | 决策模型完整端点，默认 trial 域名                      |
+| `DASHSCOPE_MODEL`             | 默认 `decision-model-preview`               |
+| `ORACLE_MASTER_KEY`           | 64 位十六进制，AES-256-GCM 主密码                  |
+| `DASHSCOPE_API_KEY`           | 可选，不加密直接放环境变量时使用（不推荐）                     |
+| `RATE_LIMIT_MAX`              | 每 IP 限流次数，默认 40                           |
+| `RATE_LIMIT_WINDOW_MS`        | 限流窗口，默认 600000（10 分钟）                     |
+| `GLOBAL_MODEL_LIMIT_PER_HOUR` | 全局模型调用小时上限，默认 300                         |
+| `TRUST_PROXY`                 | 在 Nginx/Caddy 后面设为 `1`，才能正确取到真实 IP        |
+| `ALLOWED_ORIGINS`             | 可选，逗号分隔的允许来源，例如 `https://your-domain.com` |
 
 ### 关于 Endpoint
 
